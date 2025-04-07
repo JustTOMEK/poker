@@ -7,7 +7,7 @@ class Deck:
         self.shuffle()
 
     def generate_deck(self):
-        ranks = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace"]
+        ranks = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14"]
         suits = ["Hearts", "Diamonds", "Clubs", "Spades"]
         return [Card(rank, suit) for rank in ranks for suit in suits]
 

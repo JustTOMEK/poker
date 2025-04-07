@@ -1,5 +1,62 @@
 from Player import Player
 from Deck import Deck
+
+
+def check_royal_flush(ranks:list, suits:list):
+    if len(set(suits)) == 1 and set(ranks) == {10, 11, 12, 13, 14}:
+        return [10, 1]
+    else:
+        return [0, 0]
+
+def check_straight_flush(ranks:list , suits:list):
+    if len(set(suits)) == 1:
+        #checking for straight with ace
+        if set(ranks) == {14, 2, 3, 4, 5}:
+            return [9, 5]
+        #checking for all other straights
+        maks = max(ranks)
+        for i in range(5):
+            if maks - i not in ranks:
+                return [0, 0]
+        return [9, maks]
+
+def check_four(ranks:list):
+    four_rank = 0
+    card = 0
+    for rank in ranks:
+        if ranks.count(rank) == 4:
+            four_rank = rank
+        else:
+            card = rank
+    if four_rank != 0:
+        return [8, four_rank, card]
+    return [0, 0]
+
+def check_full_house(ranks:list):
+    if len(set(ranks)) == 2:
+        three_pair = 0
+        two_pair = 0
+        for rank in ranks:
+            if ranks.count(rank) == 2:
+                two_pair = rank
+            else:
+                three_pair = rank
+        return [7, three_pair, two_pair]
+    return [0, 0]
+
+print(check_full_house([14, 14, 14, 3, 3]) == check_full_house([14, 14, 14, 3, 3]))
+
+def check_flush(ranks:list, suits:list):
+    if len(set(suits)) == 1:
+        ranks = sorted(ranks)
+        return [6, ranks[4], ranks[3], ranks[2], ranks[1], ranks[0]]
+    return [0, 0]
+
+def check_straight(ranks:list, suits:list):
+    None
+
+print(check_flush([4,7 ,8 ,6 ,4], [1,1,1,1,1]))
+
 class Game:
     def __init__(self, small_blind: int, big_blind: int, players: list[Player], start_chips: int):
         self.small_blind = small_blind
@@ -91,7 +148,6 @@ class Game:
         player_1_best_hand = self.evaluate_hand(self.on_big)
 
     def evaluate_hand(self, player: Player):
-        best_hand = [1, 1]
         for i in range(5):
             for j in range(5):
                 if i != j:
@@ -108,4 +164,7 @@ class Game:
         for card in hand:
             suits.append(card.get_suit())
             ranks.append(card.get_rank())
-            None
+        score = check_royal_flush(ranks, suits)
+        if score[0] == 10:
+            return score
+        score = check_straight_flush(ranks, suits)
