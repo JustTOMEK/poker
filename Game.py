@@ -52,10 +52,60 @@ def check_flush(ranks:list, suits:list):
         return [6, ranks[4], ranks[3], ranks[2], ranks[1], ranks[0]]
     return [0, 0]
 
-def check_straight(ranks:list, suits:list):
-    None
+def check_straight(ranks:list):
+    if set(ranks) == {14, 2, 3, 4, 5}:
+        return [5, 5]
+    # checking for all other straights
+    maks = max(ranks)
+    for i in range(5):
+        if maks - i not in ranks:
+            return [0, 0]
+    return [5, maks]
 
-print(check_flush([4,7 ,8 ,6 ,4], [1,1,1,1,1]))
+def check_three(ranks: list):
+    three = 0
+    others = []
+    for rank in ranks:
+        if ranks.count(rank) == 3:
+            three = rank
+        else:
+            others.append(rank)
+    if three != 0:
+        others.sort()
+        return [4, three, others[1], others[1]]
+    return [0, 0]
+
+def check_two_pair(ranks: list):
+    pairs = []
+    fifth_card = 0
+    for rank in ranks:
+        if ranks.count(rank) == 2:
+            pairs.append(rank)
+        else:
+            fifth_card = rank
+    if len(pairs) == 4:
+        return [3,max(pairs), min(pairs), fifth_card]
+    return [0, 0]
+
+def check_pair(ranks: list):
+    pair = 0
+    others = []
+    for rank in ranks:
+        if ranks.count(rank) == 2:
+            pair = rank
+        else:
+            others.append(rank)
+    if pair != 0:
+        others.sort()
+        return [2, pair, others[2], others[1], others[0]]
+    return [0, 0]
+
+def check_high_card(ranks: list):
+    ranks.sort()
+    return [1, ranks[4], ranks[3], ranks[2], ranks[1], ranks[0]]
+
+
+print(check_two_pair([4,4 ,2 ,2 ,13]))
 
 class Game:
     def __init__(self, small_blind: int, big_blind: int, players: list[Player], start_chips: int):
