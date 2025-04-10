@@ -11,3 +11,14 @@ class Card:
 
     def get_suit(self):
         return self.suit
+
+    def get_str_file(self):
+        high_ranks = {
+            '11': 'J',
+            '12': 'Q',
+            '13': 'K',
+            '14': 'A'
+        }
+        if self.rank in high_ranks.keys():
+            return high_ranks[self.rank] + self.suit[0]
+        return self.rank + self.suit[0]
