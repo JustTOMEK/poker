@@ -19,6 +19,7 @@ def check_straight_flush(ranks:list , suits:list):
             if maks - i not in ranks:
                 return [0, 0]
         return [9, maks]
+    return[0, 0]
 
 def check_four(ranks:list):
     four_rank = 0
@@ -43,8 +44,6 @@ def check_full_house(ranks:list):
                 three_pair = rank
         return [7, three_pair, two_pair]
     return [0, 0]
-
-print(check_full_house([14, 14, 14, 3, 3]) == check_full_house([14, 14, 14, 3, 3]))
 
 def check_flush(ranks:list, suits:list):
     if len(set(suits)) == 1:
@@ -105,7 +104,30 @@ def check_high_card(ranks: list):
     return [1, ranks[4], ranks[3], ranks[2], ranks[1], ranks[0]]
 
 
-print(check_two_pair([4,4 ,2 ,2 ,13]))
+def evaluate_five(hand: list):
+    ranks = []
+    suits = []
+    for card in hand:
+        suits.append(card.get_suit())
+        ranks.append(int(card.get_rank()))
+    check_functions = [
+        lambda: check_royal_flush(ranks, suits),
+        lambda: check_straight_flush(ranks, suits),
+        lambda: check_four(ranks),
+        lambda: check_full_house(ranks),
+        lambda: check_flush(ranks, suits),
+        lambda: check_straight(ranks),
+        lambda: check_three(ranks),
+        lambda: check_two_pair(ranks),
+        lambda: check_pair(ranks),
+        lambda: check_high_card(ranks)
+    ]
+
+    for check in check_functions:
+        score = check()
+        if score[0] != 0:
+            return score
+
 
 class Game:
     def __init__(self, small_blind: int, big_blind: int, players: list[Player], start_chips: int):
@@ -119,6 +141,7 @@ class Game:
         self.table_cards = []
         self.round_pot = 0
         self.end_round = 0
+        self.deal_cards()
 
     def start_game(self):
         for player in self.players:
@@ -136,12 +159,13 @@ class Game:
                     self.check_who_won()
 
 
+    def deal_cards(self):
+        for player in self.players:
+            player.set_card(self.deck.deal_card())
+        for player in self.players:
+            player.set_card(self.deck.deal_card())
 
     def pre_flop(self):
-        for player in self.players:
-            player.set_card(self.deck.deal_card())
-        for player in self.players:
-            player.set_card(self.deck.deal_card())
         self.put_blinds()
         self.start_betting()
 
@@ -169,7 +193,7 @@ class Game:
         bet_to_call = 0
         while decision not in ["fold", "call"] and check_counter != 2:
             decision = self.on_small.ask_decision()
-            if (decision == ""):
+            if decision == "":
                 decision = "check"
             if decision[0].lower() == "r":
                 bet = self.on_small.get_chips(int(decision.split()[1]))
@@ -189,32 +213,46 @@ class Game:
     def change_turn(self):
         temp_player = self.on_small
         self.on_small = self.on_big
-        self.on_big = self.on_small
+        self.on_big = temp_player
 
     def deal_table(self):
         self.table_cards.append(self.deck.deal_card())
 
     def check_who_won(self):
         player_1_best_hand = self.evaluate_hand(self.on_big)
+        player_2_best_hand = self.evaluate_hand(self.on_small)
+        if player_1_best_hand == player_2_best_hand:
+            print("draw")
+        for i in range(5):
+            if player_1_best_hand[i] > player_2_best_hand[i]:
+                print("player_1 won the round")
+                break
+            elif player_1_best_hand[i] < player_2_best_hand[i]:
+                print("player_2 won the round")
+                break
+
+
 
     def evaluate_hand(self, player: Player):
+        best_hand = [0, 0, 0 , 0, 0]
         for i in range(5):
             for j in range(5):
                 if i != j:
                     for k in range(5):
                         if i != j and j!= k and k!= i:
-                            print(str(i)+ " " + str(j) + " " + str(k))
                             hand = [self.table_cards[i], self.table_cards[j], self.table_cards[k]]
                             hand.extend(player.get_cards())
-                            hand_power = self.evaluate_five(hand)
+                            hand_power = evaluate_five(hand)
+                            for counter, point in enumerate(hand_power):
+                                print(best_hand)
+                                print(hand_power)
+                                if counter > len(best_hand):
+                                    break
+                                if point > best_hand[counter]:
+                                    best_hand = hand_power
+                                    break
+                                elif best_hand[counter] > point:
+                                    break
 
-    def evaluate_five(self, hand: list):
-        ranks = []
-        suits = []
-        for card in hand:
-            suits.append(card.get_suit())
-            ranks.append(card.get_rank())
-        score = check_royal_flush(ranks, suits)
-        if score[0] == 10:
-            return score
-        score = check_straight_flush(ranks, suits)
+        return best_hand
+
