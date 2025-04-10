@@ -71,7 +71,7 @@ def check_three(ranks: list):
             others.append(rank)
     if three != 0:
         others.sort()
-        return [4, three, others[1], others[1]]
+        return [4, three, others[1], others[0]]
     return [0, 0]
 
 def check_two_pair(ranks: list):
