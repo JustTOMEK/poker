@@ -128,7 +128,7 @@ def evaluate_five(hand: list):
         if score[0] != 0:
             return score
 
-def evaluate_hand(player: Player, table_cards: list):
+def evaluate_player_hand(player_hand: list, table_cards: list):
     best_hand_power = [0, 0, 0 , 0, 0]
     best_hand = []
     for i in range(5):
@@ -137,7 +137,7 @@ def evaluate_hand(player: Player, table_cards: list):
                 for k in range(5):
                     if i != j and j!= k and k!= i:
                         hand = [table_cards[i], table_cards[j], table_cards[k]]
-                        hand.extend(player.get_cards())
+                        hand.extend(player_hand)
                         hand_power = evaluate_five(hand)
                         for counter, point in enumerate(hand_power):
                             if counter > len(best_hand_power):
@@ -151,6 +151,39 @@ def evaluate_hand(player: Player, table_cards: list):
 
     return best_hand, best_hand_power
 
+def evaluate_power_on_river(hand: list, table_cards: list, deck: Deck):
+    player_hand_power = evaluate_player_hand(hand, table_cards)
+    available_cards = deck.cards
+    better_hands = 0
+    exact_same_hands = 0
+    worse_hands = 0
+    for i in table_cards:
+        for j in table_cards:
+            for k in table_cards:
+                for x in available_cards:
+                    for y in available_cards:
+                        if len(set([i, j , k])) == 3 and x != y:
+                            hand = [i, j, k, x, y]
+                            hand_power = evaluate_five(hand)
+                            if hand_power == player_hand_power[1]:
+                                exact_same_hands += 1
+                                break
+                            for counter in range(6):
+                                if hand_power[counter] > player_hand_power[1][counter]:
+                                    better_hands += 1
+                                    break
+                                else:
+                                    worse_hands += 1
+                                    break
+    print('Table cards are: ' + ', '.join(str(card) for card in table_cards))
+    print('Player hand is: ' + ', '.join(str(card) for card in player_hand_power[0]))
+    print('There are ' + str(better_hands) + ' better hands')
+    print('There are ' + str(worse_hands) + ' worse hands')
+    print('There are ' + str(exact_same_hands) + ' draw hands')
+
+
+
+
 deck = Deck()
 player = Player()
 table_cards=[]
@@ -160,4 +193,4 @@ for i in range(2):
 for i in range(5):
     table_cards.append(deck.deal_card())
 
-print(evaluate_hand(player, table_cards))
+evaluate_power_on_river(player.get_cards(), table_cards, deck)
