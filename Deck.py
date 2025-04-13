@@ -17,3 +17,8 @@ class Deck:
 
     def deal_card(self):
         return self.cards.pop()
+
+    def deal_exact_card(self, rank: str, suit: str):
+        for i, card in enumerate(self.cards):
+            if card.rank == rank and card.suit == suit:
+                return self.cards.pop(i)

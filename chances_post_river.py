@@ -183,7 +183,7 @@ def evaluate_power_on_river(hand: list, table_cards: list, deck: Deck):
 
 
 
-
+"""
 deck = Deck()
 player = Player()
 table_cards=[]
@@ -192,5 +192,21 @@ for i in range(2):
 
 for i in range(5):
     table_cards.append(deck.deal_card())
+
+evaluate_power_on_river(player.get_cards(), table_cards, deck)
+"""
+
+table_cards_to_pass = [('4', 'Hearts'), ('2', 'Spades'), ('3', 'Clubs'), ('14', 'Spades'), ('14', 'Clubs')]
+player_cards_to_pass = [('14', 'Diamonds'), ('14', 'Hearts')]
+
+deck = Deck()
+player = Player()
+table_cards=[]
+
+for rank, suit in table_cards_to_pass:
+    table_cards.append(deck.deal_exact_card(rank, suit))
+
+for rank, suit in player_cards_to_pass:
+    player.set_card(deck.deal_exact_card(rank, suit))
 
 evaluate_power_on_river(player.get_cards(), table_cards, deck)
