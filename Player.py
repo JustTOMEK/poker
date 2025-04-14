@@ -9,7 +9,7 @@ class Player:
         self.cards.append(card)
 
     def get_cards(self):
-        return self.cards[0], self.cards[1]
+        return [self.cards[0], self.cards[1]]
 
     def set_chips(self, chips:int):
         self.chips = chips
