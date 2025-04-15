@@ -1,4 +1,5 @@
 import itertools
+import time
 from Player import Player
 from Deck import Deck
 
@@ -130,7 +131,7 @@ def evaluate_five(hand: list):
         if score[0] != 0:
             return score
 
-def evaluate_player_hand(player_hand: list, table_cards: list):
+def get_best_hand(player_hand: list, table_cards: list):
     best_hand_power = [0, 0, 0 , 0, 0]
     best_hand = []
     possible_hands = list(itertools.combinations(player_hand + table_cards, 5))
@@ -147,39 +148,49 @@ def evaluate_player_hand(player_hand: list, table_cards: list):
                 break
     return best_hand, best_hand_power
 
+def evaluate_hand(player_hand: list, table_cards: list):
+    best_hand_power = [0, 0, 0 , 0, 0]
+    possible_hands = list(itertools.combinations(player_hand + table_cards, 5))
+    for hand in possible_hands:
+        hand_power = evaluate_five(hand)
+        for counter, point in enumerate(hand_power):
+            if counter > len(best_hand_power):
+                break
+            if point > best_hand_power[counter]:
+                best_hand_power = hand_power
+                break
+            elif best_hand_power[counter] > point:
+                break
+    return best_hand_power
+
 def evaluate_power_on_river(hand: list, table_cards: list, deck: Deck):
-    player_hand_power = evaluate_player_hand(hand, table_cards)
+    player_hand_power = evaluate_hand(hand, table_cards)
     available_cards = deck.cards
+    available_2_cards = list(itertools.combinations(available_cards, 2))
     better_hands = 0
     exact_same_hands = 0
     worse_hands = 0
-    for i in table_cards:
-        for j in table_cards:
-            for k in table_cards:
-                for x in available_cards:
-                    for y in available_cards:
-                        if len(set([i, j , k])) == 3 and x != y:
-                            hand = [i, j, k, x, y]
-                            hand_power = evaluate_five(hand)
-                            if hand_power == player_hand_power[1]:
-                                exact_same_hands += 1
-                                break
-                            for counter in range(6):
-                                if hand_power[counter] > player_hand_power[1][counter]:
-                                    better_hands += 1
-                                    break
-                                else:
-                                    worse_hands += 1
-                                    break
+    for villain_hand in available_2_cards:
+        hand_power = evaluate_hand(list(villain_hand), table_cards)
+        if hand_power == player_hand_power:
+            exact_same_hands += 1
+            continue
+        for counter in range(6):
+            if hand_power[counter] > player_hand_power[counter]:
+                better_hands += 1
+                break
+            elif hand_power[counter]  < player_hand_power[counter]:
+                worse_hands += 1
+                break
     print('Table cards are: ' + ', '.join(str(card) for card in table_cards))
-    print('Player hand is: ' + ', '.join(str(card) for card in player_hand_power[0]))
+    print('Player hand is: ' + ', '.join(str(card) for card in hand))
     print('There are ' + str(better_hands) + ' better hands')
     print('There are ' + str(worse_hands) + ' worse hands')
     print('There are ' + str(exact_same_hands) + ' draw hands')
 
 
 
-"""
+
 deck = Deck()
 player = Player()
 table_cards=[]
@@ -189,8 +200,7 @@ for i in range(2):
 for i in range(5):
     table_cards.append(deck.deal_card())
 
-evaluate_power_on_river(player.get_cards(), table_cards, deck)
-"""
+
 
 """
 table_cards_to_pass = [('4', 'Hearts'), ('2', 'Spades'), ('3', 'Clubs'), ('14', 'Spades'), ('14', 'Clubs')]
@@ -209,8 +219,9 @@ for rank, suit in player_cards_to_pass:
 evaluate_power_on_river(player.get_cards(), table_cards, deck)
 """
 
-table_cards_to_pass = [('14', 'Hearts'), ('13', 'Hearts'), ('12', 'Hearts'), ('11', 'Hearts'), ('10', 'Hearts')]
-player_cards_to_pass = [('9', 'Spades'), ('9', 'Diamonds')]
+"""
+table_cards_to_pass = [('2', 'Hearts'), ('3', 'Hearts'), ('7', 'Hearts'), ('8', 'Hearts'), ('8', 'Spades')]
+player_cards_to_pass = [('13', 'Spades'), ('13', 'Diamonds')]
 
 deck = Deck()
 player = Player()
@@ -222,4 +233,15 @@ for rank, suit in table_cards_to_pass:
 for rank, suit in player_cards_to_pass:
     player.set_card(deck.deal_exact_card(rank, suit))
 
-print(evaluate_player_hand(player.get_cards(), table_cards))
+print(evaluate_power_on_river(player.get_cards(), table_cards, deck))
+
+
+start_time = time.time()
+
+print(evaluate_power_on_river(player.get_cards(), table_cards, deck))
+
+end_time = time.time()
+elapsed_time = end_time - start_time
+
+print(f"Time taken: {elapsed_time:.6f} seconds")
+"""
