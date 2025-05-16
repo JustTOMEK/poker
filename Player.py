@@ -17,6 +17,7 @@ class Player:
     def get_chips(self, chips:int):
         self.chips -= chips
         return chips
+
     def ask_decision(self):
         print("Whats your decision: raise x, call, fold, check")
         decision = input()
