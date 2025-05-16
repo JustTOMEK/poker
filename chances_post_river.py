@@ -200,6 +200,14 @@ for i in range(2):
 for i in range(5):
     table_cards.append(deck.deal_card())
 
+start_time = time.time()
+
+print(evaluate_power_on_river(player.get_cards(), table_cards, deck))
+
+end_time = time.time()
+elapsed_time = end_time - start_time
+
+print(f"Time taken: {elapsed_time:.6f} seconds")
 
 
 """
@@ -236,12 +244,5 @@ for rank, suit in player_cards_to_pass:
 print(evaluate_power_on_river(player.get_cards(), table_cards, deck))
 
 
-start_time = time.time()
 
-print(evaluate_power_on_river(player.get_cards(), table_cards, deck))
-
-end_time = time.time()
-elapsed_time = end_time - start_time
-
-print(f"Time taken: {elapsed_time:.6f} seconds")
 """
