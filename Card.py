@@ -11,3 +11,11 @@ class Card:
 
     def get_suit(self):
         return self.suit
+
+    def __eq__(self, other):
+        if isinstance(other, Card):
+            return self.rank == other.rank and self.suit == other.suit
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
