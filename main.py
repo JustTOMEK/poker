@@ -18,6 +18,7 @@ for filename in os.listdir("images"):
         image = pygame.transform.scale(image, (80, 120))
         card_images[key] = image
 
+
 # Init Pygame
 pygame.init()
 
@@ -40,6 +41,15 @@ card_font = pygame.font.SysFont('Arial', 32)
 # Button
 button_rect = pygame.Rect(WIDTH // 2 - 150, HEIGHT // 2 - 40, 300, 80)
 
+# Action buttons (bottom right)
+fold_button = pygame.Rect(WIDTH - 250, HEIGHT - 220, 200, 50)
+check_button = pygame.Rect(WIDTH - 250, HEIGHT - 150, 200, 50)
+raise_button = pygame.Rect(WIDTH - 250, HEIGHT - 80, 200, 50)
+
+# Chip display (above buttons)
+chip_display_rect = pygame.Rect(WIDTH - 250, HEIGHT - 290, 200, 50)
+
+
 # Game state
 state = "start"  # other value: "table"
 
@@ -47,7 +57,6 @@ state = "start"  # other value: "table"
 player1_hand = players[0].get_cards()
 player2_hand = players[1].get_cards()
 table_cards = [None] * 5
-
 
 
 # Drawing functions
@@ -74,18 +83,42 @@ def draw_table():
     # Player 1 (bottom)
     for i, card in enumerate(player1_hand):
         draw_card(500 + i * 100, 550, card.get_str_file())
-    label1 = button_font.render("Player 1", True, WHITE)
-    screen.blit(label1, (550, 680))
 
     # Player 2 (top)
     for i, card in enumerate(player2_hand):
         draw_card(500 + i * 100, 50, card.get_str_file())
-    label2 = button_font.render("Player 2", True, WHITE)
-    screen.blit(label2, (550, 10))
+
 
     # Table cards (center)
     for i, card in enumerate(table_cards):
         draw_card(390 + i * 90, 300, card)
+
+    draw_action_buttons()
+
+def draw_action_buttons():
+    # Chip display
+    pygame.draw.rect(screen, DARK_GRAY, chip_display_rect, border_radius=10)
+    chip_text = button_font.render(f"Chips: {players[0].chips}", True, WHITE)
+    chip_text_rect = chip_text.get_rect(center=chip_display_rect.center)
+    screen.blit(chip_text, chip_text_rect)
+
+    # Fold button
+    pygame.draw.rect(screen, DARK_GRAY, fold_button, border_radius=10)
+    fold_text = button_font.render("Fold", True, WHITE)
+    fold_text_rect = fold_text.get_rect(center=fold_button.center)
+    screen.blit(fold_text, fold_text_rect)
+
+    # Check button
+    pygame.draw.rect(screen, DARK_GRAY, check_button, border_radius=10)
+    check_text = button_font.render("Check", True, WHITE)
+    check_text_rect = check_text.get_rect(center=check_button.center)
+    screen.blit(check_text, check_text_rect)
+
+    # Raise button
+    pygame.draw.rect(screen, DARK_GRAY, raise_button, border_radius=10)
+    raise_text = button_font.render("Raise", True, WHITE)
+    raise_text_rect = raise_text.get_rect(center=raise_button.center)
+    screen.blit(raise_text, raise_text_rect)
 
 
 
@@ -100,7 +133,9 @@ def main():
 
             if state == "start" and event.type == pygame.MOUSEBUTTONDOWN:
                 if button_rect.collidepoint(event.pos):
+                    """
                     poker_game.start_game()
+                    """
                     state = "table"
 
         if state == "start":
