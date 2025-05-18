@@ -1,5 +1,5 @@
-from Player import Player
-from Deck import Deck
+from logic.Player import Player
+from logic.Deck import Deck
 
 
 def check_royal_flush(ranks:list, suits:list):
