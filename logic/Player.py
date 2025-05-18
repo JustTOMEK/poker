@@ -1,4 +1,4 @@
-from Card import Card
+from logic.Card import Card
 
 class Player:
     def __init__(self):

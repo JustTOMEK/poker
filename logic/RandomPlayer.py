@@ -1,6 +1,6 @@
 import numpy as np
 
-from Player import Player
+from logic.Player import Player
 import numpy
 
 class RandomPlayer(Player):

@@ -1,11 +1,10 @@
 import pygame
 import sys
-from random import randint
 import os
 
-from Player import Player
-from RandomPlayer import RandomPlayer
-from Game import Game
+from logic.Player import Player
+from logic.RandomPlayer import RandomPlayer
+from logic.Game import Game
 
 players = [Player(), RandomPlayer()]
 poker_game = Game(small_blind=5, big_blind=10, players=players, start_chips=1000)
