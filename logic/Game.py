@@ -146,7 +146,8 @@ class Game:
     def start_game(self):
         for player in self.players:
             player.set_chips(self.start_chips)
-        self.start_round()
+        while self.players[0].get_chips() != 0 and self.players[1].get_chips():
+            self.start_round()
 
     def start_round(self):
         self.pre_flop()
@@ -192,7 +193,10 @@ class Game:
         check_counter = 0
         bet_to_call = 0
         while decision not in ["fold", "call"] and check_counter != 2:
-            decision = self.on_small.ask_decision()
+            if bet_to_call > 0:
+                decision = self.on_small.ask_decision(['call', 'fold', 'raise'])
+            else:
+                decision = self.on_small.ask_decision(['check', 'fold', 'raise'])
             if decision == "":
                 decision = "check"
             if decision[0].lower() == "r":
