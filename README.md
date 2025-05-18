@@ -1,5 +1,7 @@
-Final Thesis on neural networks and Ai in developing a poker agent. 
-branch main - game logic
-branch poker_math - calculating the odds
-branch bot - creating the agent
-(in progress)
+# Final Thesis: Neural Networks and AI in Developing a Poker Agent
+
+**Branches:**
+
+- **`main`** – Game logic  
+- **`poker_math`** – Calculating the odds  
+- **`bot`** – Creating the agent *(in progress)*
