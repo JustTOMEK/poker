@@ -4,9 +4,10 @@ from random import randint
 import os
 
 from Player import Player
+from RandomPlayer import RandomPlayer
 from Game import Game
 
-players = [Player(), Player()]
+players = [Player(), RandomPlayer()]
 poker_game = Game(small_blind=5, big_blind=10, players=players, start_chips=1000)
 
 # Load card images
@@ -42,12 +43,23 @@ card_font = pygame.font.SysFont('Arial', 32)
 button_rect = pygame.Rect(WIDTH // 2 - 150, HEIGHT // 2 - 40, 300, 80)
 
 # Action buttons (bottom right)
-fold_button = pygame.Rect(WIDTH - 250, HEIGHT - 220, 200, 50)
-check_button = pygame.Rect(WIDTH - 250, HEIGHT - 150, 200, 50)
-raise_button = pygame.Rect(WIDTH - 250, HEIGHT - 80, 200, 50)
+fold_button = pygame.Rect(WIDTH - 250, HEIGHT - 290, 200, 50)
+check_button = pygame.Rect(WIDTH - 250, HEIGHT - 220, 200, 50)
+raise_button = pygame.Rect(WIDTH - 250, HEIGHT - 150, 200, 50)
+call_button = pygame.Rect(WIDTH - 250, HEIGHT - 80, 200, 50)
+
 
 # Chip display (above buttons)
-chip_display_rect = pygame.Rect(WIDTH - 250, HEIGHT - 290, 200, 50)
+player1_chip_display_rect = pygame.Rect(WIDTH - 250, HEIGHT - 360, 200, 50)
+player2_chip_display_rect = pygame.Rect(WIDTH - 250, 50, 200, 50)
+pot_chip_display_rect = pygame.Rect(50, HEIGHT // 2 - 25, 200, 50)
+player1_bet_display_rect = pygame.Rect(50, HEIGHT - 100, 200, 50)
+player2_bet_display_rect = pygame.Rect(50, 50, 200, 50)
+
+pot_chips = 0
+player1_bet = 0
+player2_bet = 0
+
 
 
 # Game state
@@ -94,12 +106,21 @@ def draw_table():
         draw_card(390 + i * 90, 300, card)
 
     draw_action_buttons()
+    draw_chip_display(pot_chip_display_rect, f"Pot: {pot_chips}")
+    draw_chip_display(player1_bet_display_rect, f"P1 Bet: {player1_bet}")
+    draw_chip_display(player2_bet_display_rect, f"P2 Bet: {player2_bet}")
 
 def draw_action_buttons():
-    # Chip display
-    pygame.draw.rect(screen, DARK_GRAY, chip_display_rect, border_radius=10)
-    chip_text = button_font.render(f"Chips: {players[0].chips}", True, WHITE)
-    chip_text_rect = chip_text.get_rect(center=chip_display_rect.center)
+    # P1 Chip display
+    pygame.draw.rect(screen, DARK_GRAY, player1_chip_display_rect, border_radius=10)
+    chip_text = button_font.render(f"P1 chips: {players[0].chips}", True, WHITE)
+    chip_text_rect = chip_text.get_rect(center=player1_chip_display_rect.center)
+    screen.blit(chip_text, chip_text_rect)
+
+    # P2 Chip display
+    pygame.draw.rect(screen, DARK_GRAY, player2_chip_display_rect, border_radius=10)
+    chip_text = button_font.render(f"P2 chips: {players[0].chips}", True, WHITE)
+    chip_text_rect = chip_text.get_rect(center=player2_chip_display_rect.center)
     screen.blit(chip_text, chip_text_rect)
 
     # Fold button
@@ -120,7 +141,17 @@ def draw_action_buttons():
     raise_text_rect = raise_text.get_rect(center=raise_button.center)
     screen.blit(raise_text, raise_text_rect)
 
+    # Call button
+    pygame.draw.rect(screen, DARK_GRAY, call_button, border_radius=10)
+    call_text = button_font.render("Call", True, WHITE)
+    call_text_rect = call_text.get_rect(center=call_button.center)
+    screen.blit(call_text, call_text_rect)
 
+def draw_chip_display(rect, text):
+    pygame.draw.rect(screen, DARK_GRAY, rect, border_radius=10)
+    chip_text = button_font.render(text, True, WHITE)
+    chip_text_rect = chip_text.get_rect(center=rect.center)
+    screen.blit(chip_text, chip_text_rect)
 
 def main():
     global state
