@@ -192,7 +192,10 @@ class Game:
         check_counter = 0
         bet_to_call = 0
         while decision not in ["fold", "call"] and check_counter != 2:
-            decision = self.on_small.ask_decision()
+            if bet_to_call > 0:
+                decision = self.on_small.ask_decision(['call', 'fold', 'raise'])
+            else:
+                decision = self.on_small.ask_decision(['check', 'fold', 'raise'])
             if decision == "":
                 decision = "check"
             if decision[0].lower() == "r":
