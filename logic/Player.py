@@ -14,9 +14,12 @@ class Player:
     def set_chips(self, chips:int):
         self.chips = chips
 
-    def get_chips(self, chips:int):
+    def bet(self, chips:int):
         self.chips -= chips
         return chips
+
+    def get_chips(self, chips:int):
+        self.chips += chips
 
     def check_chips(self):
         return self.chips
