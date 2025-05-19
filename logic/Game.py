@@ -135,21 +135,22 @@ class Game:
         self.big_blind = big_blind
         self.players = players
         self.start_chips = start_chips
-        self.deck = Deck()
+        self.deck = None
         self.on_big = self.players[0]
         self.on_small = self.players[1]
         self.table_cards = []
         self.round_pot = 0
         self.end_round = 0
-        self.deal_cards()
 
     def start_game(self):
         for player in self.players:
             player.set_chips(self.start_chips)
-        while self.players[0].get_chips() != 0 and self.players[1].get_chips():
+        while self.players[0].check_chips() != 0 and self.players[1].check_chips():
             self.start_round()
 
     def start_round(self):
+        self.round_pot = 0
+        self.deal_cards()
         self.pre_flop()
         if not self.end_round:
             self.flop()
@@ -161,9 +162,11 @@ class Game:
 
 
     def deal_cards(self):
+        self.deck = Deck()
+        self.table_cards = []
         for player in self.players:
+            player.get_rid_of_cards()
             player.set_card(self.deck.deal_card())
-        for player in self.players:
             player.set_card(self.deck.deal_card())
 
     def pre_flop(self):
@@ -185,8 +188,8 @@ class Game:
 
 
     def put_blinds(self):
-        self.round_pot += self.on_big.get_chips(self.big_blind)
-        self.round_pot += self.on_small.get_chips(self.small_blind)
+        self.round_pot += self.on_big.bet(self.big_blind)
+        self.round_pot += self.on_small.bet(self.small_blind)
 
     def start_betting(self):
         decision = ''
@@ -200,14 +203,15 @@ class Game:
             if decision == "":
                 decision = "check"
             if decision[0].lower() == "r":
-                bet = self.on_small.get_chips(int(decision.split()[1]))
+                bet = self.on_small.bet(int(decision.split()[1]))
                 self.round_pot+=bet
                 bet_to_call = bet
             if decision== "call":
-                self.round_pot += self.on_small.get_chips(bet_to_call)
+                self.round_pot += self.on_small.bet(bet_to_call)
             if decision == "check":
                 check_counter+=1
             if decision == "fold":
+                self.on_big.get_chips(self.round_pot)
                 self.end_round = 1
             self.change_turn()
         print('end of round')
@@ -229,9 +233,11 @@ class Game:
             print("draw")
         for i in range(5):
             if player_1_best_hand[i] > player_2_best_hand[i]:
+                self.on_big.get_chips(self.round_pot)
                 print("player_1 won the round")
                 break
             elif player_1_best_hand[i] < player_2_best_hand[i]:
+                self.on_small.get_chips(self.round_pot)
                 print("player_2 won the round")
                 break
 

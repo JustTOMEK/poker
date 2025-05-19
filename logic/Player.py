@@ -24,6 +24,9 @@ class Player:
     def check_chips(self):
         return self.chips
 
+    def get_rid_of_cards(self):
+        self.cards = []
+
     def ask_decision(self, available_decisions):
         print("Whats your decision: raise x, call, fold, check")
         decision = "None"
