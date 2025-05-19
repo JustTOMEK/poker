@@ -1,3 +1,4 @@
+from logic.GuiPlayer import GuiPlayer
 from logic.Player import Player
 from logic.Deck import Deck
 
@@ -141,25 +142,81 @@ class Game:
         self.table_cards = []
         self.round_pot = 0
         self.end_round = 0
+        self.round_stage = None
+        self.stage_in_progress = None
+        self.bet_to_call = 0
+        self.decision_in_the_round = 0
+
+    def is_finished(self):
+        if self.players[0].check_chips() == 0 or self.players[1].check_chips() == 0:
+            return True
+        return False
 
     def start_game(self):
         for player in self.players:
             player.set_chips(self.start_chips)
-        while self.players[0].check_chips() != 0 and self.players[1].check_chips():
-            self.start_round()
 
     def start_round(self):
         self.round_pot = 0
         self.deal_cards()
+        self.round_stage = "preflop"
+        self.stage_in_progress = True
+        self.decision_in_the_round = 0
         self.pre_flop()
-        if not self.end_round:
-            self.flop()
-            if not self.end_round:
-                self.turn()
-                if not self.end_round:
-                    self.river()
-                    self.check_who_won()
 
+    def progress(self, waiting_for_input, decision):
+        # TO DO FIX reraising and go through in game scenarios changing stages
+        if not self.stage_in_progress:
+            self.change_stage()
+            return
+        elif not isinstance(self.on_small, GuiPlayer):
+            if self.bet_to_call > 0:
+                decision = self.on_small.ask_decision(['call', 'fold', 'raise'])
+            else:
+                decision = self.on_small.ask_decision(['check', 'fold', 'raise'])
+        elif isinstance(self.on_small, GuiPlayer) and waiting_for_input:
+            return
+        self.decision_in_the_round += 1
+        if decision== "call":
+            if self.decision_in_the_round > 1:
+                self.stage_in_progress = False
+            self.round_pot += self.on_small.bet(self.bet_to_call)
+            self.bet_to_call = 0
+
+        if decision[0].lower() == "r":
+            bet = self.on_small.bet(int(decision.split()[1]))
+            self.round_pot+=bet
+            self.bet_to_call = bet - self.bet_to_call
+
+        if decision == "check":
+            if self.decision_in_the_round > 1:
+                self.stage_in_progress = False
+
+        if decision == "fold":
+            self.on_big.get_chips(self.round_pot)
+            self.stage_in_progress = False
+        self.change_turn()
+
+
+    def change_stage(self):
+        if self.round_stage == "preflop":
+            self.round_stage = "flop"
+            self.flop()
+            self.stage_in_progress = True
+        elif self.round_stage == "flop":
+            self.round_stage = "turn"
+            self.turn()
+            self.stage_in_progress = True
+        elif self.round_stage == "turn":
+            self.round_stage = "river"
+            self.river()
+            self.stage_in_progress = True
+        elif self.round_stage == "river":
+            self.round_stage = "turn"
+            self.showdown()
+            self.stage_in_progress = False
+        self.decision_in_the_round = 0
+        self.bet_to_call = 0
 
     def deal_cards(self):
         self.deck = Deck()
@@ -171,52 +228,24 @@ class Game:
 
     def pre_flop(self):
         self.put_blinds()
-        self.start_betting()
+        self.bet_to_call = self.small_blind
 
     def flop(self):
         for i in range(3):
             self.table_cards.append(self.deck.deal_card())
-        self.start_betting()
 
     def turn(self):
         self.table_cards.append(self.deck.deal_card())
-        self.start_betting()
 
     def river(self):
         self.table_cards.append(self.deck.deal_card())
-        self.start_betting()
 
+    def showdown(self):
+        return None
 
     def put_blinds(self):
         self.round_pot += self.on_big.bet(self.big_blind)
         self.round_pot += self.on_small.bet(self.small_blind)
-
-    def start_betting(self):
-        decision = ''
-        check_counter = 0
-        bet_to_call = 0
-        while decision not in ["fold", "call"] and check_counter != 2:
-            if bet_to_call > 0:
-                decision = self.on_small.ask_decision(['call', 'fold', 'raise'])
-            else:
-                decision = self.on_small.ask_decision(['check', 'fold', 'raise'])
-            if decision == "":
-                decision = "check"
-            if decision[0].lower() == "r":
-                bet = self.on_small.bet(int(decision.split()[1]))
-                self.round_pot+=bet
-                bet_to_call = bet
-            if decision== "call":
-                self.round_pot += self.on_small.bet(bet_to_call)
-            if decision == "check":
-                check_counter+=1
-            if decision == "fold":
-                self.on_big.get_chips(self.round_pot)
-                self.end_round = 1
-            self.change_turn()
-        print('end of round')
-
-
 
     def change_turn(self):
         temp_player = self.on_small
@@ -225,6 +254,9 @@ class Game:
 
     def deal_table(self):
         self.table_cards.append(self.deck.deal_card())
+
+    def get_table_cards(self):
+        return self.table_cards
 
     def check_who_won(self):
         player_1_best_hand = self.evaluate_hand(self.on_big)
